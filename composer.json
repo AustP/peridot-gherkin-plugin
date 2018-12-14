@@ -1,0 +1,17 @@
+{
+  "autoload": {
+    "psr-4": {
+      "Peridot\\Plugin\\": "src"
+    }
+  },
+  "description": "A Peridot plugin that adds a Gherkin style DSL.",
+  "license": "MIT",
+  "name": "austp/peridot-gherkin-plugin",
+  "require": {
+    "peridot-php/peridot": "^1.19"
+  },
+  "version": "1.0.0",
+  "require-dev": {
+    "mockery/mockery": "^1.2"
+  }
+}
