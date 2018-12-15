@@ -2,8 +2,13 @@
 
 namespace Peridot\Plugin;
 
+use Peridot\Plugin\Gherkin\SpecReporter;
+use Peridot\Runner\Context;
+
 class GherkinPlugin
 {
+    public static $stories = [];
+
     public function __construct($emitter)
     {
         $emitter->on('peridot.start', function ($env) {
@@ -138,7 +143,7 @@ class GherkinPlugin
 
                         $newTest = new \Peridot\Core\Test(
                             $test->getDescription(),
-                            $fn
+                            $test->getPending() ? null : $fn
                         );
 
                         $suite->addTest($newTest);

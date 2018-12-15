@@ -1,5 +1,6 @@
 <?php
 
+use Peridot\Plugin\GherkinPlugin;
 use Peridot\Runner\Context;
 
 function background(...$args)
@@ -200,4 +201,66 @@ function fisolatedScenario($title, ...$args)
 function xisolatedScenario($title, ...$args)
 {
     return __scenario($title, true, false, true, ...$args);
+}
+
+
+
+function __story($pending, $focused, $isolated, ...$args)
+{
+    $title = '';
+    $test = null;
+
+    foreach ($args as $arg) {
+        if (is_string($arg)) {
+            $title .= $arg . ' ';
+        } elseif (is_callable($arg) && $test === null) {
+            $test = $arg;
+        }
+    }
+
+    return function () use ($focused, $isolated, $pending, $test, $title) {
+        $suite = Context::getInstance()->addSuite(
+            "",
+            function () use ($focused, $pending, $test, $title) {
+                Context::getInstance()->addTest(
+                    $title,
+                    $test,
+                    $pending,
+                    $focused
+                );
+            }
+        );
+
+        $suite->isolated = $isolated;
+    };
+}
+
+function story(...$args)
+{
+    return __story(null, false, false, ...$args);
+}
+
+function fstory(...$args)
+{
+    return __story(null, true, false, ...$args);
+}
+
+function xstory(...$args)
+{
+    return __story(true, false, false, ...$args);
+}
+
+function isolatedStory(...$args)
+{
+    return __story(null, false, true, ...$args);
+}
+
+function fisolatedStory(...$args)
+{
+    return __story(null, true, true, ...$args);
+}
+
+function xisolatedStory(...$args)
+{
+    return __story(true, false, true, ...$args);
 }

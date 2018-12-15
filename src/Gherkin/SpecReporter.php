@@ -4,6 +4,7 @@ namespace Peridot\Plugin\Gherkin;
 
 class SpecReporter extends \Peridot\Reporter\SpecReporter
 {
+    protected $currentSuite;
     protected $lastFeature;
     protected $lastScenario;
 
@@ -21,6 +22,47 @@ class SpecReporter extends \Peridot\Reporter\SpecReporter
         static::$instance->output->setVerbosity(
             \Symfony\Component\Console\Output\OutputInterface::VERBOSITY_QUIET
         );
+    }
+
+    public function onRunnerStart()
+    {
+        //
+    }
+
+    /**
+     * @param Suite $suite
+     */
+    public function onSuiteEnd()
+    {
+        if ($this->currentSuite->getDescription() === '') {
+            return;
+        }
+
+        parent::onSuiteEnd();
+    }
+
+    /**
+     * @param Suite $suite
+     */
+    public function onSuiteStart($suite)
+    {
+        $lastSuite = $this->currentSuite;
+        $this->currentSuite = $suite;
+
+        if ($this->currentSuite->getDescription() === '') {
+            if ($lastSuite && $lastSuite->getDescription() !== '') {
+                $this->output->writeln('');
+            }
+
+            return;
+        }
+
+        if ($lastSuite && $lastSuite->getDescription() === '') {
+            $this->output->writeln('');
+            $this->column = 0;
+        }
+
+        parent::onSuiteStart($suite);
     }
 
     /**

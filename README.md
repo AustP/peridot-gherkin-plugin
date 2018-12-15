@@ -78,7 +78,7 @@ This is the output for the above test:
 
 ## DSL
 
-This plugin adds 4 primary functions: `feature`, `background`, `scenario`, and `isolatedScenario`.
+This plugin adds 6 primary functions: `feature`, `background`, `scenario`, `isolatedScenario`, `story`, and `isolatedStory`.
 
 ### feature
 
@@ -166,6 +166,41 @@ In the above example, the first scenario is run in isolation. This allows us to 
 Other available methods:  
 `xisolatedScenario` - Marks the scenario as pending.  
 `fisolatedScenario` - Focuses the scenario.
+
+### story
+
+- Any string arguments will be used as the test description
+- The first callable argument will be used as the test function
+
+Although they don't fit in as nicely into the Gherkin language as scenarios do, sometimes it is helpful to define tests as stories rather than scenarios. This function will help you do that. The following two calls to `story` are equivalent:
+
+```(php)
+feature(
+    'Story Feature',
+    story(
+        'As a someone',
+        'I want something',
+        'So that something',
+        function () {}
+    ),
+    story(
+        'As a someone I want something So that something',
+        function () {}
+    )
+);
+```
+
+Other available methods:  
+`xstory` - Marks the story as pending.  
+`fstory` - Focuses the story.
+
+### isolatedStory
+
+This behaves exactly as `story` except it will run in a separate process. See `isolatedScenario` for more details about running in a separate process.
+
+Other available methods:  
+`xisolatedStory` - Marks the story as pending.  
+`fisolatedStory` - Focuses the story.
 
 ## Installation / Setup
 
