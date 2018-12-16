@@ -103,10 +103,8 @@ function xfeature($name, ...$args)
 
 
 
-function __scenario($title, $pending, $focused, $isolated, ...$args)
+function __suite($title, $pending, $focused, $isolated, ...$args)
 {
-    $scenario = "\n    Scenario: $title";
-
     $tests = [];
     $description = null;
     foreach ($args as $arg) {
@@ -161,9 +159,9 @@ function __scenario($title, $pending, $focused, $isolated, ...$args)
         }
     };
 
-    return function () use ($scenario, $fn, $pending, $focused, $isolated) {
+    return function () use ($title, $fn, $pending, $focused, $isolated) {
         $suite = Context::getInstance()->addSuite(
-            $scenario,
+            $title,
             $fn,
             $pending,
             $focused
@@ -171,6 +169,13 @@ function __scenario($title, $pending, $focused, $isolated, ...$args)
 
         $suite->isolated = $isolated;
     };
+}
+
+
+
+function __scenario($title, $pending, $focused, $isolated, ...$args)
+{
+    return __suite("Scenario: $title", $pending, $focused, $isolated, ...$args);
 }
 
 function scenario($title, ...$args)
@@ -205,62 +210,37 @@ function xisolatedScenario($title, ...$args)
 
 
 
-function __story($pending, $focused, $isolated, ...$args)
+function __stories($pending, $focused, $isolated, ...$args)
 {
-    $title = '';
-    $test = null;
-
-    foreach ($args as $arg) {
-        if (is_string($arg)) {
-            $title .= $arg . ' ';
-        } elseif (is_callable($arg) && $test === null) {
-            $test = $arg;
-        }
-    }
-
-    return function () use ($focused, $isolated, $pending, $test, $title) {
-        $suite = Context::getInstance()->addSuite(
-            "",
-            function () use ($focused, $pending, $test, $title) {
-                Context::getInstance()->addTest(
-                    $title,
-                    $test,
-                    $pending,
-                    $focused
-                );
-            }
-        );
-
-        $suite->isolated = $isolated;
-    };
+    return __suite('Stories:', $pending, $focused, $isolated, ...$args);
 }
 
-function story(...$args)
+function stories(...$args)
 {
-    return __story(null, false, false, ...$args);
+    return __stories(null, false, false, ...$args);
 }
 
-function fstory(...$args)
+function fstories(...$args)
 {
-    return __story(null, true, false, ...$args);
+    return __stories(null, true, false, ...$args);
 }
 
-function xstory(...$args)
+function xstories(...$args)
 {
-    return __story(true, false, false, ...$args);
+    return __stories(true, false, false, ...$args);
 }
 
-function isolatedStory(...$args)
+function isolatedStories(...$args)
 {
-    return __story(null, false, true, ...$args);
+    return __stories(null, false, true, ...$args);
 }
 
-function fisolatedStory(...$args)
+function fisolatedStories(...$args)
 {
-    return __story(null, true, true, ...$args);
+    return __stories(null, true, true, ...$args);
 }
 
-function xisolatedStory(...$args)
+function xisolatedStories(...$args)
 {
-    return __story(true, false, true, ...$args);
+    return __stories(true, false, true, ...$args);
 }

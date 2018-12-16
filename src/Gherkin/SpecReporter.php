@@ -34,10 +34,6 @@ class SpecReporter extends \Peridot\Reporter\SpecReporter
      */
     public function onSuiteEnd()
     {
-        if ($this->currentSuite->getDescription() === '') {
-            return;
-        }
-
         parent::onSuiteEnd();
     }
 
@@ -46,20 +42,9 @@ class SpecReporter extends \Peridot\Reporter\SpecReporter
      */
     public function onSuiteStart($suite)
     {
-        $lastSuite = $this->currentSuite;
-        $this->currentSuite = $suite;
-
-        if ($this->currentSuite->getDescription() === '') {
-            if ($lastSuite && $lastSuite->getDescription() !== '') {
-                $this->output->writeln('');
-            }
-
-            return;
-        }
-
-        if ($lastSuite && $lastSuite->getDescription() === '') {
+        $description = $suite->getDescription();
+        if (strpos($description, 'Feature:') !== 0) {
             $this->output->writeln('');
-            $this->column = 0;
         }
 
         parent::onSuiteStart($suite);

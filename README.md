@@ -78,7 +78,7 @@ This is the output for the above test:
 
 ## DSL
 
-This plugin adds 6 primary functions: `feature`, `background`, `scenario`, `isolatedScenario`, `story`, and `isolatedStory`.
+This plugin adds 6 primary functions: `feature`, `background`, `scenario`, `isolatedScenario`, `stories`, and `isolatedStories`.
 
 ### feature
 
@@ -167,40 +167,37 @@ Other available methods:
 `xisolatedScenario` - Marks the scenario as pending.  
 `fisolatedScenario` - Focuses the scenario.
 
-### story
+### stories
 
-- Any string arguments will be used as the test description
-- The first callable argument will be used as the test function
+- Any `''` arguments are ignored.
+- Any other string arguments will be used as test descriptions.
+- Any callable arguments will be used as the test functions.
 
-Although they don't fit in as nicely into the Gherkin language as scenarios do, sometimes it is helpful to define tests as stories rather than scenarios. This function will help you do that. The following two calls to `story` are equivalent:
+Although they don't fit in as nicely into the Gherkin language as scenarios do, sometimes it is helpful to define tests as stories rather than scenarios. This function will help you do that. It behaves identically to `scenario` except for the fact that it doesn't require a title argument as it's first parameter.
 
 ```(php)
 feature(
-    'Story Feature',
-    story(
-        'As a someone',
-        'I want something',
-        'So that something',
-        function () {}
-    ),
-    story(
-        'As a someone I want something So that something',
+    'Stories Feature',
+    stories(
+        'I want it to do something',
+        function () {},
+        'I want it to do something else',
         function () {}
     )
 );
 ```
 
 Other available methods:  
-`xstory` - Marks the story as pending.  
-`fstory` - Focuses the story.
+`xstories` - Marks the stories as pending.  
+`fstories` - Focuses the stories.
 
-### isolatedStory
+### isolatedStories
 
-This behaves exactly as `story` except it will run in a separate process. See `isolatedScenario` for more details about running in a separate process.
+This behaves exactly as `stories` except it will run in a separate process. See `isolatedScenario` for more details about running in a separate process.
 
 Other available methods:  
-`xisolatedStory` - Marks the story as pending.  
-`fisolatedStory` - Focuses the story.
+`xisolatedStories` - Marks the stories as pending.  
+`fisolatedStories` - Focuses the stories.
 
 ## Installation / Setup
 
