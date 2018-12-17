@@ -105,6 +105,9 @@ function xfeature($name, ...$args)
 
 function __suite($title, $pending, $focused, $isolated, ...$args)
 {
+    $focusedTest = false;
+    $pendingTest = null;
+
     $tests = [];
     $description = null;
     foreach ($args as $arg) {
@@ -116,8 +119,13 @@ function __suite($title, $pending, $focused, $isolated, ...$args)
             if (isset($description)) {
                 $tests[] = [
                     'description' => $description,
-                    'fn' => null
+                    'fn' => null,
+                    'pending' => $pendingTest,
+                    'focused' => $focusedTest
                 ];
+
+                $pendingTest = null;
+                $focusedTest = false;
             }
 
             $description = $arg;
@@ -128,34 +136,56 @@ function __suite($title, $pending, $focused, $isolated, ...$args)
 
             // now that we have a function,
             // update any previous "tests" that are pending to pass
-            $testCount = count($tests);
-            for ($i = 0; $i < $testCount; $i++) {
-                if ($tests[$i]['fn'] === null) {
-                    $tests[$i]['fn'] = function () {
-                        // noop to make the "test" pass
-                    };
+            if (strpos($title, 'Scenario:') === 0) {
+                $testCount = count($tests);
+                for ($i = 0; $i < $testCount; $i++) {
+                    if ($tests[$i]['fn'] === null) {
+                        $tests[$i]['fn'] = function () {
+                            // noop to make the "test" pass
+                        };
+                    }
                 }
             }
 
             $tests[] = [
                 'description' => $description,
-                'fn' => $arg
+                'fn' => $arg,
+                'pending' => $pendingTest,
+                'focused' => $focusedTest
             ];
 
             $description = null;
+            $pendingTest = null;
+            $focusedTest = false;
+        } elseif (is_array($arg)) {
+            if ($arg[0] === 'focus') {
+                $focusedTest = true;
+            } elseif ($arg[0] === 'skip') {
+                $pendingTest = true;
+            }
         }
     }
 
     if (isset($description)) {
         $tests[] = [
             'description' => $description,
-            'fn' => null
+            'fn' => null,
+            'pending' => $pendingTest,
+            'focused' => $focusedTest
         ];
+
+        $pendingTest = null;
+        $focusedTest = false;
     }
 
     $fn = function () use ($tests) {
         foreach ($tests as $test) {
-            Context::getInstance()->addTest($test['description'], $test['fn']);
+            Context::getInstance()->addTest(
+                $test['description'],
+                $test['fn'],
+                $test['pending'],
+                $test['focused']
+            );
         }
     };
 
@@ -243,4 +273,16 @@ function fisolatedStories(...$args)
 function xisolatedStories(...$args)
 {
     return __stories(true, false, true, ...$args);
+}
+
+
+
+function focusNextStory()
+{
+    return ['focus'];
+}
+
+function skipNextStory()
+{
+    return ['skip'];
 }

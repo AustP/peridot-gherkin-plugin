@@ -78,7 +78,7 @@ This is the output for the above test:
 
 ## DSL
 
-This plugin adds 6 primary functions: `feature`, `background`, `scenario`, `isolatedScenario`, `stories`, and `isolatedStories`.
+This plugin adds 6 primary functions: `feature`, `background`, `scenario`, `isolatedScenario`, `stories`, and `isolatedStories` and 2 secondary functions: `focusNextStory` and `skipNextStory`.
 
 ### feature
 
@@ -198,6 +198,40 @@ This behaves exactly as `stories` except it will run in a separate process. See 
 Other available methods:  
 `xisolatedStories` - Marks the stories as pending.  
 `fisolatedStories` - Focuses the stories.
+
+### focusNextStory
+
+Sometimes it's useful to focus a single story in a collection of stories.
+
+```(php)
+feature(
+    'Focus next story feature',
+    stories(
+        // story definitions,
+
+        focusNextStory(),
+        'I want this test to be focused',
+        function () {}
+    )
+);
+```
+
+### skipNextStory()
+
+This is similar to `focusNextStory`, except it marks the next test to be skipped.
+
+```(php)
+feature(
+    'Skip next story feature',
+    stories(
+        // story definitions,
+
+        skipNextStory(),
+        'I want this test to be skipped',
+        function () {}
+    )
+);
+```
 
 ## Installation / Setup
 
