@@ -36,7 +36,9 @@ function background(...$args)
             if (isset($teardown)) {
                 Context::getInstance()->addTearDownFunction($teardown);
             }
-        }
+        },
+        'setup' => $setup,
+        'teardown' => $teardown
     ];
 }
 
@@ -105,6 +107,7 @@ function xfeature($name, ...$args)
 
 function __suite($title, $pending, $focused, $isolated, ...$args)
 {
+    $background = null;
     $focusedTest = false;
     $pendingTest = null;
 
@@ -120,12 +123,9 @@ function __suite($title, $pending, $focused, $isolated, ...$args)
                 $tests[] = [
                     'description' => $description,
                     'fn' => null,
-                    'pending' => $pendingTest,
-                    'focused' => $focusedTest
+                    'pending' => null,
+                    'focused' => false
                 ];
-
-                $pendingTest = null;
-                $focusedTest = false;
             }
 
             $description = $arg;
@@ -158,10 +158,28 @@ function __suite($title, $pending, $focused, $isolated, ...$args)
             $pendingTest = null;
             $focusedTest = false;
         } elseif (is_array($arg)) {
-            if ($arg[0] === 'focus') {
-                $focusedTest = true;
-            } elseif ($arg[0] === 'skip') {
-                $pendingTest = true;
+            if (count($arg) === 0) {
+                if ($arg[0] === 'focus') {
+                    $focusedTest = true;
+                } elseif ($arg[0] === 'skip') {
+                    $pendingTest = true;
+                }
+            } else {
+                foreach ($arg['descriptions'] as $i => $desc) {
+                    if ($i <= 1) {
+                        continue;
+                    }
+
+                    $tests[] = [
+                        'description' => 'Background: ' . trim($desc),
+                        'fn' => function () {
+                        },
+                        'pending' => null,
+                        'focused' => false
+                    ];
+                }
+
+                $background = $arg;
             }
         }
     }
@@ -178,11 +196,35 @@ function __suite($title, $pending, $focused, $isolated, ...$args)
         $focusedTest = false;
     }
 
-    $fn = function () use ($tests) {
+    $fn = function () use ($background, $tests) {
         foreach ($tests as $test) {
+            $fn = $test['fn'];
+            if (is_array($background)) {
+                $fn = function () use ($background, $fn) {
+                    if (is_callable($background['setup'])) {
+                        $background['setup']();
+                    }
+
+                    $exception = null;
+                    try {
+                        $fn();
+                    } catch (\Throwable $e) {
+                        $exception = $e;
+                    }
+
+                    if (is_callable($background['teardown'])) {
+                        $background['teardown']();
+                    }
+
+                    if (isset($exception)) {
+                        throw $exception;
+                    }
+                };
+            }
+
             Context::getInstance()->addTest(
                 $test['description'],
-                $test['fn'],
+                $fn,
                 $test['pending'],
                 $test['focused']
             );
