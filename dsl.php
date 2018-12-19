@@ -158,7 +158,7 @@ function __suite($title, $pending, $focused, $isolated, ...$args)
             $pendingTest = null;
             $focusedTest = false;
         } elseif (is_array($arg)) {
-            if (count($arg) === 0) {
+            if (count($arg) === 1) {
                 if ($arg[0] === 'focus') {
                     $focusedTest = true;
                 } elseif ($arg[0] === 'skip') {
